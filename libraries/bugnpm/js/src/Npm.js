@@ -222,7 +222,7 @@ require('bugpack').context("*", function(bugpack) {
          * }=)} callback
          */
         getModuleDataFromFolder: function(modulePath, callback) {
-            var packageJsonPath = BugFs.joinPaths(modulePath, "package.json");
+            var packageJsonPath = BugFs.joinPaths([modulePath, "package.json"]);
             var moduleData = {};
             $if (function(flow) {
                     packageJsonPath.isFile(function(error, result) {
@@ -234,7 +234,14 @@ require('bugpack').context("*", function(bugpack) {
                     });
                 },
                 $task(function(flow) {
-                    //TODO BRN: retrieve the name and version data from the package.json file
+                    packageJsonPath.readFile('utf8', function(error, data) {
+                        if (!error) {
+                            moduleData = JSON.parse(data);
+                            flow.complete();
+                        } else {
+                            flow.error(error);
+                        }
+                    });
                 })
             ).$else (
                 $task(function(flow) {
@@ -242,12 +249,12 @@ require('bugpack').context("*", function(bugpack) {
                         "the package.json file cannot be found"));
                 })
             ).execute(function(error) {
-                    if (!error) {
-                        callback(null, moduleData);
-                    } else {
-                        callback(error);
-                    }
-                });
+                if (!error) {
+                    callback(null, moduleData);
+                } else {
+                    callback(error);
+                }
+            });
         },
 
         /**
