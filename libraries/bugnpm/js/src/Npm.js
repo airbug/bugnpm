@@ -145,7 +145,7 @@ require('bugpack').context("*", function(bugpack) {
         },
 
         /**
-         * @param {string} modulePathString
+         * @param {(string | Path)} modulePathString
          * @param {function(Error, {
          *      name: string,
          *      version: string
